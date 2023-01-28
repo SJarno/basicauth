@@ -25,4 +25,4 @@ Spring Boot 3.x and Spring Security 6.x now in place.
 Currently just with Basic auth, and with one pre-defined user
 
 ## Next steps
-Use in memory user, next repo!
+Use in memory user, next repo ->
