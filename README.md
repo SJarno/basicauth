@@ -1,5 +1,7 @@
 # Basic Auth with Spring Boot and Angular
 [![Build and Test Spring Boot Project](https://github.com/SJarno/basicauth/actions/workflows/main.yml/badge.svg)](https://github.com/SJarno/basicauth/actions/workflows/main.yml)
+[![codecov](https://codecov.io/gh/SJarno/basicauth/branch/main/graph/badge.svg?token=BM3666OGFF)](https://codecov.io/gh/SJarno/basicauth)
+
 Basic auth with Spring Security and Angular part 664
 
 ## About
