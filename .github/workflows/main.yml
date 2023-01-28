@@ -24,6 +24,7 @@ jobs:
       
     - name: Test with JUnit
       run: gradle test
+      
     - name: Generate Jacoco coverage report
       run: gradle jacocoTestReport
       
