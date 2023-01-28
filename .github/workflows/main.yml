@@ -24,3 +24,12 @@ jobs:
       
     - name: Test with JUnit
       run: gradle test
+    - name: Generate Jacoco coverage report
+      run: gradle jacocoTestReport
+      
+    - name: Upload coverage data to codecov
+      uses: codecov/codecov-action@v1
+      with:
+        fail_ci_if_error: true
+        token: ${{ secrets.CODECOV_TOKEN }}
+        flags: jacoco
