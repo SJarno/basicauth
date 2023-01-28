@@ -1,52 +1,71 @@
 package com.example.demo.configuration;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.DelegatingSecurityContextRepository;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.savedrequest.NullRequestCache;
 
 @Configuration
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
+@EnableWebSecurity
+public class SecurityConfiguration {
 
     String[] staticResources = {
-        "/*.js", "/*.css", "/*.ico"
+            "/*.js", "/*.css", "/*.ico"
     };
     String[] clientSideResources = {
-        "/", "/home", "/login"
+            "/", "/home", "/login"
     };
-    
-    /* TODO: check if best practice to handle resources here
+
+    /*
+     * TODO: check if best practice to handle resources here
      * Or in security config
      */
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers(staticResources);
+    @Bean
+    WebSecurityCustomizer webSecurity() throws Exception {
+        return (web) -> web.ignoring().requestMatchers(staticResources);
     }
 
-
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        //https://angular.io/api/common/http/HttpClientXsrfModule
+        //https://docs.spring.io/spring-security/reference/5.8/migration/servlet/exploits.html
+        CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
+        requestHandler.setCsrfRequestAttributeName(null);
+        //requestHandler.setCsrfRequestAttributeName("_csrf");//possible break here
         http
-            .cors()
-            .and()
-            .httpBasic().and()
-            .authorizeRequests()
-                //.antMatchers(staticResources).permitAll()//note resources can be handled here
-                .antMatchers(clientSideResources).permitAll()
-                .anyRequest().authenticated()
+                // cache
+                .requestCache((cache) -> cache.requestCache(new NullRequestCache()))
+                // Session management
+                .sessionManagement((sessions) -> sessions
+                        .requireExplicitAuthenticationStrategy(false)) // this is breaking the session
+                //
+                .securityContext((securityContext) -> securityContext
+                        .requireExplicitSave(false)
+                        // new defaults for creating own context
+                        .securityContextRepository(new DelegatingSecurityContextRepository(
+                                new RequestAttributeSecurityContextRepository(),
+                                new HttpSessionSecurityContextRepository())))
+                .securityMatcher("/**")//excplicit protection for path
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(clientSideResources).permitAll()
+                        .anyRequest().authenticated())
+                .httpBasic()
                 .and()
-            .csrf()
-                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+                .csrf((csrf) -> csrf
+                    .csrfTokenRequestHandler(requestHandler)
+                    .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                );
+        return http.build();
     }
-    
+
 }

@@ -18,6 +18,8 @@ repositories {
 	mavenCentral()
 }
 
+ext['spring-security.version']='5.8.1'
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
