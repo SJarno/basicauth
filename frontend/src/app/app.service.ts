@@ -16,7 +16,7 @@ export class AppService {
   constructor(private http: HttpClient) { }
 
 
-  authenticate(credentials: any, callback: any): Observable<any> {
+  authenticate(credentials: any, _callback: any): Observable<any> {
     const headers = new HttpHeaders(credentials ? {
       authorization: 'Basic ' + window.btoa(credentials.username + ':' + credentials.password)
     } : {});
@@ -26,7 +26,6 @@ export class AppService {
         console.log('The authresponse == ', response);
       }),
       map((response: AuthResponse) => {
-        this.user = response;
         return response;
       }),
       catchError(this.handleError<any>('Error in auth!')));
@@ -36,23 +35,24 @@ export class AppService {
     return user ? true : false;
   } */
   logout(): boolean {
-    this.http.post(`${this.url}logout`, {}).pipe(tap(logoutResult => {
-      console.log('Logout result in response == ', logoutResult)
-    }),
+    this.http.post(`${this.url}logout`, {}).pipe(
+      tap(logoutResult => {
+        console.log('Logout result in response == ', logoutResult)
+      }),
       catchError(this.handleError<any>('Logging out error')))
       .subscribe(() => {
         this.user = undefined;
       });
-    return false;
+    return true;
   }
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
-      //Log to console
-      //if (error.status != 401) {
+      //We dont want to log the auth errors to console
+      if (error.status !== 401) {
         console.error('Error occured == ', error);
-        //console.log('Logging the actual message', error.message);
+        console.log('Logging the actual message', error.message);
         console.log(`${operation} failed: ${error.message}`)
-      //}
+      }
       return of(result as T);
     };
   }

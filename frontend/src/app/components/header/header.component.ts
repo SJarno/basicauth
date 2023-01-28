@@ -16,7 +16,7 @@ export class HeaderComponent implements OnInit {
   logout() {
     const logoutResult = this.authService.logout();
     console.log('Logout result == ', logoutResult);
-    if (logoutResult == false) {
+    if (logoutResult) {
       this.router.navigateByUrl('/login');
     }
   }

@@ -15,13 +15,18 @@ export class HomeComponent implements OnInit {
   constructor(private app: AppService, private http: HttpClient) { }
 
   ngOnInit(): void {
-    console.log('Is authenticated', this.isAuthenticated())
+    //this.app.authenticate(undefined, undefined).subscribe();  
+    console.log('Home == Is authenticated', this.isAuthenticated());
     this.http.get(`${this.url}resource`).subscribe(data => this.greeting = data);
  
 
   }
   isAuthenticated(): boolean | undefined {
-    return this.app.user?.authenticated;
+    if (this.app.user) {
+      return this.app.user?.authenticated;
+    }
+    return false;
+    
   }
 
 }

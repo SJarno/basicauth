@@ -19,12 +19,14 @@ export class LoginComponent implements OnInit {
   login() {
   this.app.authenticate(this.credentials, () => {
       this.router.navigateByUrl('/');
-    }).subscribe(auth => {
+    }).subscribe((auth: AuthResponse) => {
       console.log('Login ==',auth);
       if (auth == undefined) {
         this.error = true;
+        this.app.user = undefined;
       } else {
         this.error = false;
+        this.app.user = auth;
         this.router.navigateByUrl('/');
       }
       

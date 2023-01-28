@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AppService } from './app.service';
+import { AuthResponse } from './models/AuthResponse';
 
 @Component({
   selector: 'app-root',
@@ -12,18 +13,24 @@ export class AppComponent {
   title = 'Demo';
   greeting: any = {};
 
-  constructor(private http: HttpClient, private app: AppService, private router: Router) {
+  constructor(private app: AppService) {
 
   }
   ngOnInit() {
-    console.log('Authenticating on top level')
-    this.app.authenticate(undefined, undefined).subscribe(auth => {
-      console.log('Auth result on top level ==', auth);
+    console.log('1.Authenticating on top level')
+    this.app.authenticate(undefined, undefined).subscribe((auth: AuthResponse) => {
+      if (auth) {
+        console.log('2.Top level, auth ==', auth);
+        console.log("3.Is authenticated ==", auth.authenticated);
+        this.app.user = auth;
+      }
+
     });
-    console.log('After auth == ',this.app.user);
+    
   }
   isAuthenticated() {
-    return this.app.authenticated;
+    console.log('4.After auth sub == ',this.app.user);
+    return this.app.user?.authenticated;
   }
 
 }
